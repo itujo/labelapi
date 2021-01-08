@@ -6,87 +6,37 @@ const options: Firebird.Options = database;
 
 const fbPool = Firebird.pool(5, options);
 
-const exec = (query: string, params = []) => new Promise((resolve, reject) => {
-  fbPool.get((err: Error, db: Firebird.Database) => {
-    fbPool.destroy();
-    if (err) {
-      reject(err);
-    }
-    try {
-      db.query(query, params, (error: Error, data: any[]) => {
-        if (error) {
-          reject(error);
-          db.detach();
-        } else {
-          const result = [];
-          data.forEach((row) => {
-            const tempObj = {};
-            Object.keys(row).forEach((el) => {
-              tempObj[el] = convertBufferArray(row[el]);
+const exec: Firebird.QueryCallback = (query: string, params = []) =>
+  new Promise((resolve, reject) => {
+    fbPool.get((err: Error, db: Firebird.Database) => {
+      fbPool.destroy();
+      if (err) {
+        reject(err);
+      }
+      try {
+        db.query(query, params, (error: Error, data: JSON[]) => {
+          if (error) {
+            reject(error);
+            db.detach();
+          } else {
+            const result = [];
+            data.forEach((row) => {
+              const tempObj = {};
+              Object.keys(row).forEach((el) => {
+                tempObj[el] = convertBufferArray(row[el]);
+              });
+              result.push(tempObj);
             });
-            result.push(tempObj);
-          });
-          resolve(result);
+
+            resolve(result);
+            db.detach();
+          }
           db.detach();
-        }
-        db.detach();
-      });
-    } catch (error) {
-      reject(error);
-    }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
   });
-});
-
-export const update = (query: string, params = []) => new Promise((resolve, reject) => {
-  fbPool.get((err: Error, db: Firebird.Database) => {
-    fbPool.destroy();
-    if (err) {
-      reject(err);
-    }
-    try {
-      db.query(query, params, (error: Error, data: any[]) => {
-        if (error) {
-          reject(error);
-          db.detach();
-        } else {
-          const tempObj: Object = {};
-
-          Object.keys(data).forEach((el) => {
-            tempObj[el] = convertBufferArray(data[el]);
-          });
-
-          resolve(tempObj);
-          db.detach();
-        }
-        db.detach();
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-});
-
-export const insert = (query: string, params = []) => new Promise((resolve, reject) => {
-  fbPool.get((err: Error, db: Firebird.Database) => {
-    fbPool.destroy();
-    if (err) {
-      reject(err);
-    }
-    try {
-      db.query(query, params, (error: Error, data: any[]) => {
-        if (error) {
-          reject(error);
-          db.detach();
-        } else {
-          resolve(data);
-          db.detach();
-        }
-        db.detach();
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-});
 
 export default exec;

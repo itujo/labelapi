@@ -1,11 +1,9 @@
-import MovimentCotroller from '@controllers/MovimentCotroller';
+import MovimentController from '@controllers/MovimentController';
 
 import { Router } from 'express';
 
 const routes = Router();
 
-// routes.get('/:lote', MovimentCotroller.index);
-routes.get('/:lote', MovimentCotroller.show);
-// routes.post('/', CadastroController.show);
+routes.get('/:lote', MovimentController.show);
 
 export default routes;
