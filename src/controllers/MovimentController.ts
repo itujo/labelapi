@@ -22,7 +22,7 @@ export default {
                   WHERE
                     lote = ?
                   `;
-      const data = await exec(query, [req.params.lote]);
+      const data = exec(query, [req.params.lote]);
 
       return res.status(200).json(data);
     } catch (error) {
@@ -42,7 +42,8 @@ export default {
                       pedido as PO,
                       caixa as qtdCaixa,
                       pacote as totalLote,
-                      fecha as data
+                      fecha as data,
+                      pais as prefix
                     FROM
                       lote
                     WHERE
@@ -52,7 +53,8 @@ export default {
 
       const queryMovimento = `
                     SELECT
-                      *
+                      codigo_inicial as firsticcid,
+                      codigo_final as lasticcid
                     FROM
                       movimento
                     WHERE
@@ -61,7 +63,7 @@ export default {
                       sequencia
                     `;
 
-      const dataMovimento: any = exec(queryMovimento, [req.params.lote]);
+      const dataMovimento: any = await exec(queryMovimento, [req.params.lote]);
 
       const dataRetorno = [...dataLote, ...dataMovimento];
 
